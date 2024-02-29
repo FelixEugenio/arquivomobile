@@ -1,6 +1,7 @@
 import React, { useState, createContext, ReactNode, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../services/api';
+import { AxiosError } from 'axios';
 
 type AuthContextData = {
   user: UserProps;
@@ -9,6 +10,7 @@ type AuthContextData = {
   loadingAuth: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
+  signUp: (credentials:SignUpProps) => Promise<void>;
 };
 
 type UserProps = {
@@ -17,6 +19,12 @@ type UserProps = {
   email: string;
   token: string;
 };
+
+type SignUpProps = {
+  name:string
+  email:string,
+  password:string
+}
 
 type AuthProviderProps = {
   children: ReactNode;
@@ -97,6 +105,50 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  async function signUp({email,name,password}:SignUpProps) {
+    setLoadingAuth(true);
+
+    try{
+
+      const response = await api.post('/users',{
+        email,
+        password,
+        name
+      });
+
+      const {id , token } = response.data;
+
+      const data = {
+        ...response.data
+      }
+
+      await AsyncStorage.setItem('@arquivoGPT',JSON.stringify(data));
+
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      setUser({
+        id,
+        name,
+        token,
+        email
+      });
+
+      setLoadingAuth(false)
+
+    }catch(error){
+
+   const axiosError = error as AxiosError;
+
+   if(axiosError.response){
+    console.log('Detalhes do erro:', axiosError.response.data);
+
+   }
+
+   setLoadingAuth(false)
+
+    }
+  }
+
   async function signOut() {
     await AsyncStorage.clear();
     setUser({
@@ -105,10 +157,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       email: '',
       token: '',
     });
+    
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, signIn, loading, loadingAuth, signOut }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, signIn, loading, loadingAuth, signOut,signUp }}>
       {children}
     </AuthContext.Provider>
   );

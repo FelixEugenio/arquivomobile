@@ -10,28 +10,30 @@ import {
 } from 'react-native'
 
 import { useNavigation } from '@react-navigation/native';
+
 import { AuthContext } from '../../contexts/AuthContext'
 
-export default function SignIn(){
-  const navigation = useNavigation()
-  const { signIn,loadingAuth } = useContext(AuthContext)
+export default function SignUp(){
+    const navigation = useNavigation()
+  const { signUp,loadingAuth } = useContext(AuthContext)
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('');
+  const [name,setName] = useState('');
+  const [password, setPassword] = useState('');
 
-  async function handleLogin(){
-
-    if(email === '' || password === ''){
+  async function handleSigUp(){
+  
+    if(email === '' || password === '' || name === ''){
       return;
     }
 
-    await signIn({ email, password })
+    await signUp({ email, password ,name})
     
   }
 
-  function handleSignUp(){
-    navigation.navigate('SignUp')
-  }
+  function handleSignIn(){
+    navigation.navigate('SignIn')
+   }
 
   return(
     <View style={styles.container}>
@@ -41,6 +43,14 @@ export default function SignIn(){
       />
 
       <View style={styles.inputContainer}>
+        <TextInput
+          placeholder="Digite seu Nome"   
+          style={styles.input}     
+          placeholderTextColor="#F0F0F0"
+          value={name}
+          onChangeText={setName}
+        />
+
         <TextInput
           placeholder="Digite seu email"   
           style={styles.input}     
@@ -58,18 +68,19 @@ export default function SignIn(){
           onChangeText={setPassword}          
         />     
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <TouchableOpacity style={styles.button} onPress={handleSigUp}>
           {
             loadingAuth ? (
               <ActivityIndicator size={25} color="#FFF" />
             ):(
-               <Text style={styles.buttonText}>Acessar</Text>
+               <Text style={styles.buttonText}>Cadastrar-se</Text>
             )
           }
           
-        </TouchableOpacity>   
+        </TouchableOpacity>  
+        
       </View>
-      <Text style={styles.buttonTextLink} onPress={handleSignUp}> Ainda Não tem uma conta? Cadastra-te</Text>
+      <Text style={styles.buttonTextLink} onPress={handleSignIn}>Já tem uma conta? Faça Login</Text>
     </View>
   )
 }
@@ -111,13 +122,12 @@ const styles = StyleSheet.create({
   buttonText:{
    fontSize: 18, 
    fontWeight: 'bold',
-   color: '#101026'
+   color: '#101026',
   },
-
   buttonTextLink:{
     fontSize: 18, 
     fontWeight: 'bold',
     color: '#FFF'
    },
-
+  
 })
