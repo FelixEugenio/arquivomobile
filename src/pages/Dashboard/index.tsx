@@ -18,6 +18,10 @@ export default function Dashboard() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
   const handleSearch = async () => {
+    if(search === ''){
+      return;
+    }
+    
     try {
       const response = await axios.get(`https://arquivo.pt/textsearch?q=${search}`);
 
