@@ -1,9 +1,16 @@
+// Dashboard.tsx
 import React, { useState } from 'react';
 import { SafeAreaView, Text, TouchableOpacity, TextInput, FlatList, StyleSheet, Linking } from 'react-native';
 import axios from 'axios';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useContext } from 'react';
-import { Feather } from '@expo/vector-icons'; // Importa o ícone
+import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { AppStackParamList } from '../../routes/routes'; // Importe o tipo do parâmetro de navegação
+
+interface DashboardProps {
+  navigation: any; // Ou utilize o tipo específico para a navegação se estiver disponível
+}
 
 interface SearchResult {
   key: string;
@@ -12,16 +19,16 @@ interface SearchResult {
   link: string;
 }
 
-export default function Dashboard() {
+export default function Dashboard({ navigation }: DashboardProps) {
   const { signOut } = useContext(AuthContext);
   const [search, setSearch] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
   const handleSearch = async () => {
-    if(search === ''){
+    if (search === '') {
       return;
     }
-    
+
     try {
       const response = await axios.get(`https://arquivo.pt/textsearch?q=${search}`);
 
@@ -29,7 +36,7 @@ export default function Dashboard() {
         title: result.title,
         snippet: stripHtmlTags(result.snippet),
         link: result.link,
-        key: String(index), // Adicionando uma chave única usando o índice
+        key: String(index),
       }));
 
       setSearchResults(results);
@@ -39,11 +46,19 @@ export default function Dashboard() {
   };
 
   const renderItem = ({ item }: { item: SearchResult }) => (
-    <TouchableOpacity style={styles.resultItem} onPress={() => handleOpenURL(item.link)}>
+    <TouchableOpacity style={styles.resultItem} onPress={() => handleResultPress(item)}>
       <Text style={styles.resultTitle}>{item.title}</Text>
       <Text style={styles.resultSnippet}>{item.snippet}</Text>
     </TouchableOpacity>
   );
+
+  const handleResultPress = (result: SearchResult) => {
+    navigation.navigate('Details', {
+      title: result.title,
+      snippet: result.snippet,
+      link: result.link,
+    });
+  };
 
   const handleOpenURL = (url: string | undefined) => {
     if (url && url.trim() !== '') {
@@ -51,14 +66,12 @@ export default function Dashboard() {
     }
   };
 
-  // Função para remover tags HTML
   const stripHtmlTags = (html: string) => {
-    return html.replace(/<[^>]*>/g, ''); // Remove todas as tags HTML
+    return html.replace(/<[^>]*>/g, '');
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Botão de sair no canto superior direito */}
       <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
         <Feather name="log-out" size={24} color="#FFF" />
       </TouchableOpacity>

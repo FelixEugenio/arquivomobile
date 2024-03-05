@@ -13,7 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../../contexts/AuthContext'
 
 export default function SignIn(){
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   const { signIn,loadingAuth } = useContext(AuthContext)
 
   const [email, setEmail] = useState('')

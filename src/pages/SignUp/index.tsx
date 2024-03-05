@@ -13,6 +13,8 @@ import { useNavigation } from '@react-navigation/native';
 
 import { AuthContext } from '../../contexts/AuthContext'
 
+
+
 export default function SignUp(){
     const navigation = useNavigation()
   const { signUp,loadingAuth } = useContext(AuthContext)
